@@ -1,0 +1,58 @@
+﻿@page
+@model WebPortal.Pages.AccountModel
+
+@if(!User.Identity.IsAuthenticated) 
+{
+   this.HttpContext.Response.Redirect("/Identity/Account/Login");
+}
+
+@{
+    var str = string.Empty;
+}
+
+
+ <div class="bg-light border rounded-3">
+    <div class="container">
+        <form class="row g-3" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="UserModel.Id" />
+            <div class="container">
+                <div class="mb-3">
+                        <label asp-for="UserModel.Email" class="control-label"></label>
+                        <input asp-for="UserModel.Email" class="form-control" readonly/>
+                        <span asp-validation-for="UserModel.Email" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                        
+                        <label asp-for="UserModel.FirstName" class="control-label"></label>
+                        <input asp-for="UserModel.FirstName" class="form-control"/>
+                        <span asp-validation-for="UserModel.FirstName" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                        <label asp-for="UserModel.LastName" class="control-label"></label>
+                        <input asp-for="UserModel.LastName" class="form-control" />
+                        <span asp-validation-for="UserModel.LastName" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                        
+                        <label asp-for="UserModel.PhoneNumber" class="control-label"></label>
+                        <input asp-for="UserModel.PhoneNumber" class="form-control" />
+                        <span asp-validation-for="UserModel.PhoneNumber" class="text-danger"></span>  
+                </div>
+                <div class="mb-3">
+                        
+                        <label asp-for="UserModel.InstitutionId" class="control-label"></label>
+                        <select asp-for="UserModel.InstitutionId" class="form-control" asp-items="ViewBag.InstitutionId"></select>
+                        <span asp-validation-for="UserModel.InstitutionId" class="text-danger"></span>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <div class="col">
+                    <input type="submit" value="Save" class="btn btn-primary w-auto" />
+                </div>
+            </div>
+        </form>
+    </div>
+ </div>
+

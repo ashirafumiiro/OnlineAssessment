@@ -1,0 +1,59 @@
+﻿@page
+@model WebPortal.Areas.Admin.Pages.Schedules.EditModel
+
+@{
+    ViewData["Title"] = "Edit Schedule";
+}
+
+<h4>Edit Schedule</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Schedule.Id" />
+            <input type="hidden" asp-for="Schedule.UserId" />
+            <input type="hidden" asp-for="Schedule.LabId" />
+            <div class="form-group">
+                <label class="control-label">Email</label>
+                <input  class="form-control" value="@Model.Schedule.User.Email" disabled readonly/>
+                
+            </div>
+            <div class="form-group">
+                <label class="control-label">Lab Name</label>
+                <input  class="form-control" value="@Model.Schedule.Lab.Name" disabled readonly/>
+            </div>
+            <div class="form-group">
+                <label asp-for="Schedule.StartTime" class="control-label"></label>
+                <input asp-for="Schedule.StartTime" class="form-control" />
+                <span asp-validation-for="Schedule.StartTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Schedule.EndTime" class="control-label"></label>
+                <input asp-for="Schedule.EndTime" class="form-control" />
+                <span asp-validation-for="Schedule.EndTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Schedule.StatusId" class="control-label"></label>
+                <select asp-for="Schedule.StatusId" class="form-control" asp-items="ViewBag.StatusId"></select>
+                <span asp-validation-for="Schedule.StatusId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Schedule.SystemStatusId" class="control-label"></label>
+                <select asp-for="Schedule.SystemStatusId" class="form-control" asp-items="ViewBag.SystemStatuses"></select>
+                <span asp-validation-for="Schedule.SystemStatusId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

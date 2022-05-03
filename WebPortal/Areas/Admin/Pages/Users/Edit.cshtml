@@ -1,0 +1,300 @@
+﻿@page
+@model WebPortal.Areas.Admin.Pages.Users.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+    var userId = Model.UserModel.Id;
+
+    var rolesListToolbarItems = new List<object>()
+                {
+                    new { text = "Add Role", tooltipText = "Add another role", prefixIcon = "e-add", id = "addNewRole", align = "Right", @class = "btn btn-danger" }
+                };
+}
+<script type="text/x-jsrender" id="applyRoleTemplate">
+     <div class="row align-content-center">
+         <a data-name="${Name}" class="w-auto btn btn-primary" onclick="removeRole(this);" href="javascript:void(0);">Remove Role</a> 
+    </div>
+</script>
+
+
+<h1>Edit</h1>
+
+<h4>User Details</h4>
+<hr />
+<div class="row">
+    <div class="row">
+        <form class="row g-3" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="UserModel.Id" />
+            <div class="row py-3">
+                <div class="col">
+                    <label asp-for="UserModel.Email" class="control-label"></label>
+                    <input asp-for="UserModel.Email" class="form-control" readonly/>
+                    <span asp-validation-for="UserModel.Email" class="text-danger"></span>
+                </div>
+                
+            </div>
+            <div class="row py-1">
+                <div class="col-md-6">
+                    <label asp-for="UserModel.FirstName" class="control-label"></label>
+                    <input asp-for="UserModel.FirstName" class="form-control"/>
+                    <span asp-validation-for="UserModel.FirstName" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="UserModel.LastName" class="control-label"></label>
+                    <input asp-for="UserModel.LastName" class="form-control" />
+                    <span asp-validation-for="UserModel.LastName" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row py-1">
+                <div class="col-md-6">
+                    <label asp-for="UserModel.InstitutionId" class="control-label"></label>
+                    <select asp-for="UserModel.InstitutionId" class="form-control" asp-items="ViewBag.InstitutionId"></select>
+                    <span asp-validation-for="UserModel.InstitutionId" class="text-danger"></span>
+               </div>
+                <div class="col-md-6">
+                    <label asp-for="UserModel.TypeId" class="control-label"></label>
+                    <select asp-for="UserModel.TypeId" class="form-control" asp-items="ViewBag.TypeId"></select>
+                    <span asp-validation-for="UserModel.TypeId" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row py-1">
+                <div class="col-md-6">
+                    <label asp-for="UserModel.PhoneNumber" class="control-label"></label>
+                    <input asp-for="UserModel.PhoneNumber" class="form-control" />
+                    <span asp-validation-for="UserModel.PhoneNumber" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="UserModel.SystemStatusId" class="control-label"></label>
+                    <select asp-for="UserModel.SystemStatusId" class="form-control" asp-items="ViewBag.SystemStatusId"></select>
+                    <span asp-validation-for="UserModel.SystemStatusId" class="text-danger"></span>
+               </div>
+            </div>
+            
+            <div class="row py-1">
+                <div class="col">
+                    <input type="submit" value="Save" class="btn btn-primary w-auto" />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row py-3">
+    <h4>Manage Roles</h4>
+    <ejs-grid id="userRolesGrid" allowPaging="false" allowSorting="false" created="rolesGridCreated"
+            toolbarClick="rolesToolbarClick" toolbar=rolesListToolbarItems>
+        <e-data-manager url="@(Url.Action("GetUserRoles", "Roles"))?id=@userId" adaptor="WebApiAdaptor"></e-data-manager>
+        <e-grid-columns>
+            <e-grid-column field="Name" headerText="Name"  width="90"></e-grid-column> 
+            <e-grid-column field="Options" headerTextAlign="Left" headerText="Options" width="50" template="#applyRoleTemplate" ></e-grid-column>
+        </e-grid-columns>
+    </ejs-grid>
+</div>
+<input type="hidden" id="editUserId" value="@Model.UserModel.Id" />
+
+<div class="my-5"></div>
+
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+<div class="modal" tabindex="-1" role="dialog" id="addRoleModal" data-bs-focus="false">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Role</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+          <div class="row">
+              <div class="col-12" id="addRoleModal_Body">
+              </div>
+              <div class="col-12" id="addRoleControls">
+                <div class="form-row">
+                    <label for="input01" class="col-12 pb-2">Role @Html.Raw(String.Format(WebPortal.Helpers.Bootstrap.DangerBadge,"req","RequiredField"))</label> <!-- /form column -->
+                    <input type="hidden" id="addRoleName" />
+                    <ejs-dropdownlist id="RolesDropdownList" placeholder="Select Item" filterBarPlaceholder="e.g: student" allowFiltering="true" filtering="onfiltering" cssClass="e-outline" 
+                             zIndex="100001" change="dropDownValueChange" created="rolesDropdownCreated">
+                        <e-data-manager adaptor="WebApiAdaptor" url="@Url.ActionLink("RolesDropdownList", "Roles")" crossDomain="true" offline="true"></e-data-manager>
+                            <e-dropdownlist-fields text="Name" value="Value"></e-dropdownlist-fields>
+                        </ejs-dropdownlist>
+                </div>                 
+            </div>
+          </div> 
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="addRole_Save" onclick="processAddRole();">Save changes</button>
+        <button type="button" class="btn btn-secondary" id="addRole_Cancel" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" tabindex="-1" id="removeRoleModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirm action</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="deleteRoleName" />
+        <p id="roleRemovalMessage"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="processRemoveRole();" id="removeRole_Yes">Yes</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="removeRole_No">No, I've changed my mind</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+    var rolesGrid;
+    function rolesGridCreated(){
+        rolesGrid = document.getElementById('userRolesGrid').ej2_instances[0];
+    }
+
+    var rolesDropdownList;
+    function rolesDropdownCreated()
+    {
+        rolesDropdownList = document.getElementById('RolesDropdownList').ej2_instances[0];
+    }
+
+    function dropDownValueChange() {
+        var listObj = document.getElementById('RolesDropdownList').ej2_instances[0];
+        var value = document.getElementById('addRoleName');
+        $(value).val(listObj.value);
+    }
+
+     function onfiltering(e) {
+        var CBObj = document.getElementById("RolesDropdownList").ej2_instances[0];
+        // load overall data when search key empty.
+        if (e.text == '')
+            e.updateData(CBObj.dataSource);
+        else {
+            var query = new ej.data.Query();
+            query = (e.text !== '') ? query.where('Name', 'contains', e.text, true) : query;
+            e.updateData(CBObj.dataSource, query);
+        }
+    }
+
+    function removeRole(el){
+        var elm = $(el);
+        var roleName = elm.attr('data-name');
+        $('#deleteRoleName').val(roleName);
+        $('#roleRemovalMessage').html('Are you sure you want to remove the user from '+ roleName + ' role?');
+        $('#removeRoleModal').modal('show');
+
+        $("#removeRole_Yes").show();
+        $("#removeRole_No").show();
+    }
+
+    function processRemoveRole(){
+        var url = '@Url.Action("RemoveUserFromRole", "Roles")';
+        var payload = {
+            "UserId" : $("#editUserId").val(),
+            "RoleName": $("#deleteRoleName").val()
+        }
+
+        $("#removeRole_Yes").hide();
+        $("#removeRole_No").hide();
+
+        $.ajax({
+            contentType: "application/json",
+            type: 'POST',
+            url: url,
+            data: JSON.stringify(payload),
+            success: function (result) {
+                if (typeof result === 'object') {
+                    if(result.status == 'OK')
+                    {
+                        $('#removeRoleModal').modal('hide');
+                        rolesGrid.refresh();
+                    }
+                    else
+                    {
+                        $('#roleRemovalMessage').html('<span class="text-danger">' + result.message + '</span>');
+                        $("#removeRole_No").hide();
+                    }
+                        
+                }
+            },
+            error: function (xhr, status, error) {
+                alert(xhr.responseText);
+                alert(status);
+                alert(error);
+
+                $("#removeRole_Yes").show();
+                $("#removeRole_No").show();
+            }
+        });
+
+    }
+
+    function showAddRole(){
+        $('#addRoleModal').modal('show');
+        rolesDropdownList.value = null;
+        $("#addRole_Save").show();
+        $("#addRole_Cancel").show();
+        $('#addRoleModal_Body').html('');
+
+    }
+
+    function processAddRole(){
+        var modelBodyId = 'addRoleModal_Body';
+        var url = '@Url.Action("ApplyRole", "Roles", new { })';
+
+        var payload = {
+            "UserId" : $("#editUserId").val(),
+            "RoleName": $("#addRoleName").val()
+        }
+
+        document.getElementById(modelBodyId).innerHTML = window.getLoadingIndicator('Loading');
+
+        $("#addRole_Save").hide();
+        $("#addRole_Cancel").hide();
+
+
+        $.ajax({
+            contentType: "application/json",
+            type: 'POST',
+            url: url,
+            data: JSON.stringify(payload),
+            success: function (result) {
+                document.getElementById(modelBodyId).innerHTML = result;
+                if (typeof result === 'object') {
+                    if(result.status == 'OK')
+                        $('#addRoleModal').modal('hide');
+                    rolesGrid.refresh();
+                }
+                else {
+                    $("#addRole_Save").show();
+                    $("#addRole_Cancel").show();
+                }
+            },
+            error: function (xhr, status, error) {
+                alert(xhr.responseText);
+                alert(status);
+                alert(error);
+
+                $("#addRole_Save").show();
+                $("#addRole_Cancel").show();
+            }
+        });
+    }
+
+    function rolesToolbarClick(args) {
+
+        if (args.item.id === 'addNewRole') {
+            showAddRole();
+        }
+    }
+</script>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

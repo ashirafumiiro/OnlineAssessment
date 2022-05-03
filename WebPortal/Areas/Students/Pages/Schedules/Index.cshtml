@@ -1,0 +1,32 @@
+﻿@page
+@using DataAccess.Configuration
+@using Syncfusion.EJ2
+@using Syncfusion.EJ2.Schedule
+@using DataAccess.Extensions
+@model WebPortal.Areas.Students.Pages.Schedules.IndexModel
+@{
+    ViewBag.SchedulesActive = "active";
+    var settings = AppSettings.GetSMSettings();
+    var sheduleViewUrl = "/Students/Schedules/Details?viewId=";
+}
+
+
+<h3>My Schedules</h3>
+<hr />
+@if (Model.Schedules.Count > 0)
+{
+    @foreach (var schedule in Model.Schedules)
+    {
+        <div class="container">
+          <div class="bg-light p-3 rounded mt-3">
+            <h4>@schedule.Lab.Name</h4>
+            <p class="lead">Time: @schedule.StartTime.ToString() - @schedule.EndTime.ToString(settings.Formatting.TimeFormat)</p>
+            <a class="btn btn-lg btn-primary" href="@(sheduleViewUrl+schedule.Id.ToSlug())" role="button">Modify &raquo;</a>
+          </div>
+        </div>
+    }
+}
+else
+{
+    <p class="lead">There are no available shedules</p>
+}

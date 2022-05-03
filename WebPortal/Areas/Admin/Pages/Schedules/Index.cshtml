@@ -1,0 +1,63 @@
+﻿@page
+@model WebPortal.Areas.Admin.Pages.Schedules.IndexModel
+
+@{
+    ViewData["Title"] = "Schedules";
+    var pageSize = 10;
+
+    string editUrl = Url.Page(
+        "./Edit", 
+        pageHandler: null
+    );
+}
+
+<script type="text/javascript">
+
+function navigateToSchedule(obj) {
+
+    var link = $(obj);
+    var id = link.attr("data-id");
+    var url = '@(editUrl)?viewId=' + id;
+
+    window.ShowMessageWhileNavigating("Loading Schedule", "Please wait ...", url);
+
+    return;
+}
+
+</script>
+
+<script type="text/x-jsrender" id="viewScheduleTemplate">
+
+ <div class="row align-content-center">
+     <div class="col"><a data-id="${Slug}"  onclick="navigateToSchedule(this);" href="javascript:void(0);"> <span class="e-icons e-edit"></span></a></div>
+     <div class="col"><a data-lab-id="${Id}"  onclick="ShowDeleteScheduleDialog(this);" href="javascript:void(0);"> <span class="e-icons e-delete"></span></a></div>
+</div>
+
+</script>
+
+@await Html.PartialAsync("GridTemplates");
+<h2>Schedules</h2>
+
+<ejs-grid id="schedulessGrid" allowPaging="true" allowSorting="true" allowFiltering="true" queryCellInfo="gridSystemStatusQueryCellInfo">
+    <e-data-manager url="@Url.Action("GetSchedules", "Schedules")" adaptor="UrlAdaptor"></e-data-manager>
+    <e-grid-pagesettings pageSize="@pageSize"></e-grid-pagesettings>
+    <e-grid-filtersettings type="Excel"></e-grid-filtersettings>
+    <e-grid-columns>
+        <e-grid-column field="Id" headerText="#" width="50"></e-grid-column>
+        <e-grid-column field="User.Email" headerText="Name"  width="90"  allowFiltering="false"></e-grid-column> 
+        <e-grid-column field="StartTime" headerText="Start Time" width="70" format="yMd"></e-grid-column>      
+        <e-grid-column field="EndTime" headerText="Ends" width="90" format="yMd"></e-grid-column>
+        <e-grid-column field="SystemStatusId" headerText="Status" template="#systemStatusTemplate" width="80" allowFiltering="false"></e-grid-column>
+        <e-grid-column field="Options" headerTextAlign="Left" headerText="Options" width="50" template="#viewScheduleTemplate" allowFiltering="false"></e-grid-column>
+    </e-grid-columns>
+</ejs-grid>
+
+
+
+
+<script>
+
+    function ShowDeleteScheduleDialog(el){
+        alert("Not available");
+    }
+</script>

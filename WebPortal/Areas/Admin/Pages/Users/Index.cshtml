@@ -1,0 +1,54 @@
+﻿@page
+@model WebPortal.Areas.Admin.Pages.Users.IndexModel
+
+@{
+    ViewData["Title"] = "Users";
+    var pageSize = 10;
+
+    string editUrl = Url.Page(
+        "./Edit", 
+        pageHandler: null
+    );
+}
+
+<h1>Registered Users</h1>
+
+<script type="text/javascript">
+
+function navigateToUser(obj) {
+
+    var link = $(obj);
+    var id = link.attr("data-id");
+    var url = '@(editUrl)?viewId=' + id;
+    console.log("Url", url)
+
+    window.ShowMessageWhileNavigating("Loading Lab", "Please wait ...", url)
+
+    return;
+}
+
+</script>
+
+@await Html.PartialAsync("GridTemplates");
+
+
+<script type="text/x-jsrender" id="viewUserTemplate">
+
+ <div class="btn-group" style="float:left;">
+    <div class="col"><a data-id="${Id}"  onclick="navigateToUser(this);" href="javascript:void(0);"> <span class="e-icons e-edit"></span></a></div>
+</div>
+
+</script>
+
+<ejs-grid id="labsGrid" allowPaging="true" allowSorting="true" allowFiltering="true" queryCellInfo="gridSystemStatusQueryCellInfo">
+    <e-data-manager url="@Url.Action("GetUsers", "Data")" adaptor="UrlAdaptor"></e-data-manager>
+    <e-grid-pagesettings pageSize="@pageSize"></e-grid-pagesettings>
+    <e-grid-columns>
+        <e-grid-column field="Id" headerText="#" width="50"></e-grid-column>
+        <e-grid-column field="Email" headerText="Email"  width="90" allowFiltering="true"></e-grid-column> 
+        <e-grid-column field="FirstName" headerText="First Name" width="70" allowFiltering="true"></e-grid-column>      
+        <e-grid-column field="LastName" headerText="Last Name" width="90" allowFiltering="true"></e-grid-column>
+        <e-grid-column field="SystemStatusId" headerText="Status" template="#systemStatusTemplate" width="80" allowFiltering="false"></e-grid-column>
+        <e-grid-column field="Options" headerTextAlign="Left" headerText="Options" width="50" template="#viewUserTemplate" allowFiltering="false"></e-grid-column>
+    </e-grid-columns>
+</ejs-grid>

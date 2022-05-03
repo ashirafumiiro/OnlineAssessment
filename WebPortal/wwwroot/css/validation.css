@@ -1,0 +1,19 @@
+﻿.validation-summary-errors {
+    background-color: #FCF5C7;
+    border: 1px solid #FFEE93;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+
+.validation-summary-errors > ul {
+    margin: 0 !important;
+    padding: 0 !important;
+    border-top: none !important;
+    list-style-type: none !important;
+}
+
+.validation-summary-errors > ul > li {
+    font-size: small;
+}

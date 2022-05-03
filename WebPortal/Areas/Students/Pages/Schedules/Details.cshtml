@@ -1,0 +1,118 @@
+﻿@page
+@using DataAccess.Configuration
+@model WebPortal.Areas.Students.Pages.Schedules.DetailsModel
+
+@{
+    ViewBag.SchedulesActive = "active";
+    var settings = AppSettings.GetSMSettings();
+    var statusClass = "badge bg-{0}";
+    var status = Model.Schedule.Status;
+
+    switch (status)
+    {
+        case SM.Enumerations.ScheduleStatus.Completed:
+            statusClass = string.Format(statusClass, "success");
+            break;
+        case SM.Enumerations.ScheduleStatus.Missed:
+            statusClass = string.Format(statusClass, "danger");
+            break;
+        case SM.Enumerations.ScheduleStatus.Pending:
+            statusClass = string.Format(statusClass, "primary");
+            break;
+        default:
+            statusClass = string.Format(statusClass, "dark");
+            break;
+    }
+}
+<input type="hidden" id="cancelScheduleId" value="@Model.Schedule.Id" />
+<div class="container">
+  <div class="bg-light p-5 rounded mt-3">
+    <h1>@Model.Schedule.LabName</h1>
+    <p class="lead">Time: @Model.Schedule.StartTime.ToString() - @Model.Schedule.EndTime.ToString(settings.Formatting.TimeFormat)</p>
+    <p>Status: <span class="@statusClass">@Model.Schedule.Status.ToString()</span></p>
+    @if (@Model.Schedule.Status == SM.Enumerations.ScheduleStatus.Pending)
+    {
+       <a class="btn btn-lg btn-warning" href="javascript:void(0);" onclick="showCancelModal();" role="button">Cancel Schedule</a>
+    }
+    
+  </div>
+</div>
+
+<div class="modal" id="cancelScheduleModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Modal title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="cancelScheduleModal_Body">
+        <p>Are you sure you want to cancel the Schedule?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="cancelShedule_Yes" onclick="CancelSchedule();">Yes</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="cancelShedule_No">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+    function showCancelModal(el){
+
+        $('#cancelScheduleModal_Body').html('<p>Are you sure you want to cancel the Schedule?</p>');
+        $('#cancelScheduleModal').modal('show');
+
+        $('#cancelShedule_No').html('Close');
+        $("#cancelShedule_Yes").show();
+        $("#cancelShedule_No").show();
+    }
+
+
+    function CancelSchedule(){
+        var url = '@Url.Action("CancelSchedules", "Schedules")';
+        var payload = {
+            "Id" : $("#cancelScheduleId").val()
+        }
+
+        var modelBodyId = "cancelScheduleModal_Body";
+
+        $("#cancelShedule_Yes").hide();
+        $("#cancelShedule_No").hide();
+        document.getElementById(modelBodyId).innerHTML = getLoadingIndicator('Processing ...');
+
+        $.ajax({
+            contentType: "application/json",
+            type: 'POST',
+            url: url,
+            data: JSON.stringify(payload),
+            success: function (result) {
+                document.getElementById(modelBodyId).innerHTML = result;
+                if (result.indexOf("@(WebPortal.Helpers.Constants.SuccessToken)") > -1) {
+                    $('#cancelShedule_No').html('OK');
+                    $('#cancelShedule_No').show();
+                }
+                else{
+                    $('#cancelShedule_No').html('Close');
+                    $('#cancelShedule_No').show();
+                }
+            },
+            error: function (xhr, status, error) {
+                alert(xhr.responseText);
+                alert(status);
+                alert(error);
+
+                $("#cancelShedule_Yes").show();
+                $("#cancelShedule_No").show();
+            }
+        });
+    }
+
+    $(function(){
+        document.getElementById('cancelScheduleModal').addEventListener('hidden.bs.modal', function () {
+            var url = '/Students/Schedules';
+            window.ShowMessageWhileNavigating("Redirecting", "Please wait ...", url);
+        });
+    })
+    
+</script>

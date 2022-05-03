@@ -1,0 +1,42 @@
+﻿@{
+    int activeId = (int)SM.Enumerations.SystemStatus.Active;
+    int inactiveId = (int)SM.Enumerations.SystemStatus.Inactive;
+    int deleteId = (int)SM.Enumerations.SystemStatus.Deleted;
+}
+
+<style type="text/css">
+     td.e-rowcell span.badge-green {
+        background-color: green;
+        color: white;
+        font-weight: normal;
+    }
+
+    td.e-rowcell span.badge-orange {
+        background-color: orange;
+        color: white;
+        font-weight: normal;
+    }
+
+    td.e-rowcell span.badge-red {
+        background-color: red;
+        color: white;
+        font-weight: normal;
+    }
+</style>
+
+<script type="text/x-jsrender" id="systemStatusTemplate">
+    <span class="badge rounded-pill"> 
+        ${if(SystemStatusId == @activeId)} 
+            Active 
+         ${/if} 
+
+        ${if(SystemStatusId == @inactiveId)} 
+            Inactive
+        ${/if} 
+
+        ${if(SystemStatusId == @deleteId)} 
+           Deleted
+        ${/if} 
+        
+       </span>
+</script>

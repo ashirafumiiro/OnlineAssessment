@@ -1,0 +1,55 @@
+﻿@page
+@model WebPortal.Areas.Admin.Pages.Institutions.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+    var pageSize = 10;
+        string editUrl = Url.Page(
+        "./Edit", 
+        pageHandler: null,
+        values: null
+    );
+}
+
+<script type="text/javascript">
+
+function navigateToInstitution(obj) {
+
+    var link = $(obj);
+    var id = link.attr("data-id");
+    var url = '@(editUrl)?viewId=' + id;
+    console.log("Url", url)
+
+    window.ShowMessageWhileNavigating("Loading Lab", "Please wait ...", url)
+
+    return;
+}
+
+</script>
+
+<script type="text/x-jsrender" id="viewLabTemplate">
+
+ <div class="btn-group" style="float:left;">
+   @* <button data-id="${Slug}" onclick="navigateToInstitution(this);" href="javascript:void(0);" type="button" class="btn btn-sm btn-primary">Edit</button>*@
+    <div class="col"><a data-id="${Slug}"  onclick="navigateToInstitution(this);" href="javascript:void(0);"> <span class="e-icons e-edit"></span></a></div>
+</div>
+</script>
+
+@await Html.PartialAsync("GridTemplates");
+
+<h2>Registered Institutions</h2>
+
+<ejs-grid id="institutionsGrid" allowPaging="true" allowSorting="true" allowFiltering="true" queryCellInfo="gridSystemStatusQueryCellInfo">
+    <e-data-manager url="@Url.Action("GetInstitutions", "Data")" adaptor="UrlAdaptor"></e-data-manager>
+    <e-grid-pagesettings pageSize="@pageSize"></e-grid-pagesettings>
+    <e-grid-columns>
+        <e-grid-column field="Id" headerText="#" width="50"></e-grid-column>
+        <e-grid-column field="Name" headerText="Name"  width="90"></e-grid-column> 
+        <e-grid-column field="SystemStatusId" headerText="Status" template="#systemStatusTemplate" width="80" allowFiltering="false"></e-grid-column>
+        <e-grid-column field="Options" headerTextAlign="Left" headerText="Options" width="50" template="#viewLabTemplate" allowFiltering="false"></e-grid-column>
+    </e-grid-columns>
+</ejs-grid>
+
+<p>
+    <a asp-page="Create" class="btn btn-primary">Add Institution</a>
+</p>

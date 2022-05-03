@@ -1,0 +1,72 @@
+﻿@page 
+@model IndexModel
+@{
+    ViewBag.DashboardActive = "active";
+    var pageSize = 5;
+    var labsUrl = @Url.Action("StudentLabs", "Labs");
+}
+
+<script type="text/x-jsrender" id="viewLabTemplate">
+     <div class="row align-content-center">
+         <button class="w-auto btn btn-sm btn-primary" data-id="${Slug}" onclick="goToSchedule(this);">View</button>
+    </div>
+</script>
+
+<script>
+    function goToSchedule(el){
+        if(el !== null){
+            var elm = $(el);
+            var labId = elm.attr('data-id');
+            var url = '/Students/Schedules/Create?id=' + labId;
+            window.location = url;
+        }
+    }
+</script>
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Dashboard</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+        <button type="button" class="btn btn-sm btn-outline-secondary">Completed</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary">Pending</button>
+        </div>
+        <a asp-area="Students" asp-page="/Schedules/Index" class="btn btn-sm btn-outline-secondary dropdown-toggle">
+        <span data-feather="calendar"></span>
+            Schedules
+        </a>
+    </div>
+</div>
+
+<h4>Welcome <span class="text-primary">@(Model.Name)!</span></h4>
+<p>With the students portal, you can be able to Schedule for Labs in your instition and also manage them. You will also find details for useful documentation
+    which will help you in completing you assignments
+</p>
+
+<div class="card my-3">
+  <h5 class="card-header">Available Labs</h5>
+  <div class="card-body">
+    <p class="card-text">Browse through the available Labs and schedule for the desired one. You can also search directly on the applicable Fields</p>
+    <div class="mt-2">
+        <ejs-grid id="labsGrid" allowPaging="true" allowSorting="true" allowFiltering="true">
+            <e-data-manager url="@labsUrl" adaptor="UrlAdaptor"></e-data-manager>
+            <e-grid-pagesettings pageSize="@pageSize"></e-grid-pagesettings>
+            <e-grid-columns>
+                <e-grid-column field="Id" headerText="#" width="50"></e-grid-column>
+                <e-grid-column field="Name" headerText="Name"  width="90"></e-grid-column> 
+                <e-grid-column field="StartDate" headerText="Start Date" width="70" format="yMd"></e-grid-column>      
+                <e-grid-column field="StopDate" headerText="Ends" width="90" format="yMd"></e-grid-column>
+                <e-grid-column field="Options" headerTextAlign="Left" headerText="Options" width="50" template="#viewLabTemplate" allowFiltering="false"></e-grid-column>
+            </e-grid-columns>
+        </ejs-grid>
+    </div>
+
+  </div>
+</div>
+
+<div class="card mb-3">
+  <h5 class="card-header">Available Tests and Exams</h5>
+  <div class="card-body">
+    <p class="card-text">Browse through the available Tests and exams, schedule for the desired one. You can also search directly on the applicable Fields</p>
+    @*<a href="#" class="btn btn-primary">View More</a>*@
+  </div>
+</div>

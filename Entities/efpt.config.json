@@ -1,0 +1,101 @@
+﻿{
+   "CodeGenerationMode": 0,
+   "ContextClassName": "SmarterlabsContext",
+   "ContextNamespace": null,
+   "DefaultDacpacSchema": null,
+   "FilterSchemas": false,
+   "IncludeConnectionString": true,
+   "ModelNamespace": null,
+   "OutputContextPath": "Context",
+   "OutputPath": "Enities",
+   "ProjectRootNamespace": "DataAccess",
+   "Schemas": null,
+   "SelectedHandlebarsLanguage": 0,
+   "SelectedToBeGenerated": 0,
+   "Tables": [
+      {
+         "Name": "public.Courses",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.AspNetUserTokens",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.AspNetRoles",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.Schedules",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.Labs",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.Institutions",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.AspNetUsers",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.InstitutionTypes",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.Addresses",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.AspNetRoleClaims",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.AspNetUserLogins",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.UserTypes",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.SystemStatuses",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.StudentsLabs",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.AspNetUserRoles",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.ScheduleStatuses",
+         "ObjectType": 0
+      },
+      {
+         "Name": "public.AspNetUserClaims",
+         "ObjectType": 0
+      }
+   ],
+   "UiHint": ".SmarterLabs",
+   "UseBoolPropertiesWithoutDefaultSql": false,
+   "UseDatabaseNames": false,
+   "UseDbContextSplitting": false,
+   "UseFluentApiOnly": true,
+   "UseHandleBars": false,
+   "UseInflector": true,
+   "UseLegacyPluralizer": false,
+   "UseNoConstructor": false,
+   "UseNoDefaultConstructor": false,
+   "UseNoNavigations": false,
+   "UseNoObjectFilter": false,
+   "UseNodaTime": false,
+   "UseNullableReferences": false,
+   "UseSchemaFolders": false,
+   "UseSpatial": false
+}

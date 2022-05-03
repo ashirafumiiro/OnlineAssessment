@@ -1,0 +1,101 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Register";
+
+    var selectedInstitutionId = Model.Input != null && Model.Input.InstitutionId != null ? Model.Input.InstitutionId.ToString() : "";
+}
+
+<div class="container-fluid">
+    <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="container-fluid">
+        <div class="row">
+            <h2>Create a new account.</h2>
+            <hr />
+        </div>
+        <div class="row">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <div class="mb-3">
+                    <label asp-for="Input.FirstName" class="form-label"></label> @Html.Raw(String.Format(WebPortal.Helpers.Bootstrap.WarningBadge, "Required Field"))
+                    <input asp-for="Input.FirstName" class="form-control" placeholder="First Name" aria-required="true">
+                    <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Input.LastName" class="form-label"></label> @Html.Raw(String.Format(WebPortal.Helpers.Bootstrap.WarningBadge, "Required Field"))
+                    <input asp-for="Input.LastName" class="form-control" placeholder="Last Name" aria-required="true">
+                    <span asp-validation-for="Input.LastName" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Input.Email" class="form-label"></label> @Html.Raw(String.Format(WebPortal.Helpers.Bootstrap.WarningBadge, "Required Field"))
+                    <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com"/>  
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="mb-3">
+                    <label asp-for="Input.Password" class="form-label"></label> @Html.Raw(String.Format(WebPortal.Helpers.Bootstrap.WarningBadge, "Required Field"))
+                    <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" />                
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Input.ConfirmPassword" class="form-label"></label> @Html.Raw(String.Format(WebPortal.Helpers.Bootstrap.WarningBadge, "Required Field"))
+                    <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" />
+                    <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Input.TypeId" class="control-label"></label> 
+                    <select asp-for="Input.TypeId" class ="form-control" asp-items="ViewBag.TypeId"></select>
+                    <span asp-validation-for="Input.TypeId" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Input.InstitutionId" class="control-label"></label>
+                    <input asp-for="Input.InstitutionId" />
+                     <ejs-dropdownlist id="instituionIdList" placeholder="Smarter Labs if not applicable" dataSource="@ViewBag.InstitutionId" filterBarPlaceholder="e.g: Smarter Labs" allowFiltering="true" filtering="onInstituionDropDownFiltering" cssClass="e-outline" value="@selectedInstitutionId"
+                         change="onInstitutionDropDownValueChange">
+                        <e-dropdownlist-fields text="Name" value="Id"></e-dropdownlist-fields>
+                    </ejs-dropdownlist>
+
+                    <span asp-validation-for="Input.InstitutionId" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+            
+        <button id="registerSubmit" type="submit" class="w-auto btn btn-lg btn-primary">Register</button>
+    </form>
+</div>
+
+
+<script>
+function onInstitutionDropDownValueChange() {
+    var institutionDropdownList = document.getElementById('instituionIdList').ej2_instances[0];
+    var value = document.getElementById('Input_InstitutionId');
+    $(value).val(institutionDropdownList.value);
+}
+
+function onInstituionDropDownFiltering(e) {
+    var institutionDropdownList = document.getElementById("instituionIdList").ej2_instances[0];
+    // load overall data when search key empty.
+    if (e.text == '')
+        e.updateData(institutionDropdownList.dataSource);
+    else {
+        var query = new ej.data.Query();
+        query = (e.text !== '') ? query.where('Name', 'contains', e.text, true) : query;
+        e.updateData(institutionDropdownList.dataSource, query);
+    }
+}
+
+$(document).ready(function(){
+    var institutionDropdownList = document.getElementById('instituionIdList').ej2_instances[0];
+    var selectedValue = $('#Input_InstitutionId').val();
+    console.log('Selected:', selectedValue);
+    institutionDropdownList.value = selectedValue;
+
+});
+
+</script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

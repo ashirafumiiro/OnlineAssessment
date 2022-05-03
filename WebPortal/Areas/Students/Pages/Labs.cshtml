@@ -1,0 +1,152 @@
+﻿@page
+@using DataAccess.Configuration
+@using DataAccess.Extensions
+@model WebPortal.Areas.Students.Pages.LabsModel
+
+
+@{
+    ViewBag.LabsActive = "active";
+    var labsUrl = @Url.Action("StudentLabs", "Labs");
+    var pageSize = 5;
+    var settings = AppSettings.GetSMSettings();
+
+    string dateFormat = settings.Formatting.DateFormat;
+    string timeFormat = settings.Formatting.TimeFormat;
+    var sheduleViewUrl = "/Students/Schedules/Details?viewId=";
+}
+<script type="text/x-jsrender" id="viewLabTemplate">
+     <div class="row align-content-center">
+         <button class="w-auto btn btn-sm btn-primary" data-id="${Slug}" onclick="viewLab(this);">Schedule</button>
+    </div>
+</script>
+
+<script>
+    function viewLab(el){
+        if(el !== null){
+            var elm = $(el);
+            var labId = elm.attr('data-id');
+            var url = '/Students/Lab?viewId=' + labId;
+            window.location = url;
+        }
+    }
+</script>
+
+
+<div class="my-3 p-3 bg-body rounded shadow-sm">
+    <h6 class="border-bottom pb-2 mb-0 text-primary">Available Labs</h6>
+    @if(Model.AvailableLabs.Count > 0)
+    {
+        <div class="d-flex text-muted pt-3">
+          <ejs-grid id="labsGrid" allowPaging="true" allowSorting="true" allowFiltering="true">
+            <e-data-manager url="@labsUrl" adaptor="UrlAdaptor"></e-data-manager>
+            <e-grid-pagesettings pageSize="@pageSize"></e-grid-pagesettings>
+            <e-grid-columns>
+                <e-grid-column field="Id" headerText="#" width="50"></e-grid-column>
+                <e-grid-column field="Name" headerText="Name"  width="90"></e-grid-column> 
+                <e-grid-column field="StartDate" headerText="Start Date" width="70" format="yMd"></e-grid-column>      
+                <e-grid-column field="StopDate" headerText="Ends" width="90" format="yMd"></e-grid-column>
+                <e-grid-column field="Options" headerTextAlign="Left" headerText="Options" width="50" template="#viewLabTemplate" allowFiltering="false"></e-grid-column>
+            </e-grid-columns>
+          </ejs-grid>
+        </div>
+    }
+    else
+    {
+        <small class="d-block mt-3">
+          <span>No Labs Available</span>
+        </small>
+    } 
+</div>
+
+
+<div class="my-3 p-3 bg-body rounded shadow-sm">
+    <h6 class="border-bottom pb-2 mb-0 text-warning">Sheduled Labs</h6>
+    <div class="overflow-auto" style="min-height:200px;max-height:200px" >
+        @if(Model.Schedules.Where(p => p.StatusId == (int)SM.Enumerations.ScheduleStatus.Pending).Any())
+        {
+            foreach (var schedule in Model.Schedules.Where(p => p.StatusId == (int)SM.Enumerations.ScheduleStatus.Pending))
+            {
+                <div class="d-flex text-muted pt-3">
+                  <svg class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#007bff"/><text x="50%" y="50%" fill="#007bff" dy=".3em">32x32</text></svg>
+
+                  <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
+                    <div class="d-flex justify-content-between">
+                      <strong class="text-gray-dark">@schedule.Lab.Name</strong>
+                      <a href="@(sheduleViewUrl+schedule.Id.ToSlug())" class="px-3">View</a>
+                    </div>
+                    <span class="d-block">Time: @schedule.StartTime.ToString(dateFormat+timeFormat) - @schedule.EndTime.ToString(timeFormat) </span>
+                  </div>
+                </div>
+            }
+        }
+        else
+        {
+            <small class="d-block mt-3">
+              <span>No Scheduled Labs</span>
+            </small>
+        } 
+    </div>
+
+</div>
+
+
+<div class="my-3 p-3 bg-body rounded shadow-sm">
+    <h6 class="border-bottom pb-2 mb-0 text-success">Completed Labs</h6>
+    <div class="overflow-auto" style="min-height:200px;max-height:200px" >
+        @if (Model.CompletedLabs.Count > 0)
+        {
+            foreach (var schedule in Model.Schedules.Where(p => p.StatusId == (int)SM.Enumerations.ScheduleStatus.Completed))
+            {
+                <div class="d-flex text-muted pt-3">
+                    <svg class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#5cb85c"/><text x="50%" y="50%" fill="#5cb85c" dy=".3em">32x32</text></svg>
+
+                  <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
+                    <div class="d-flex justify-content-between">
+                      <strong class="text-gray-dark">@schedule.Lab.Name</strong>
+                      <a href="@(sheduleViewUrl+schedule.Id.ToSlug())" class="px-3">View</a>
+                    </div>
+                    <span class="d-block">Time: @schedule.StartTime.ToString(dateFormat+timeFormat) - @schedule.EndTime.ToString(timeFormat)</span>
+                  </div>
+                </div>
+            }
+        }
+        else
+        {
+            <small class="d-block mt-3">
+              <span>No Labs have been completed</span>
+            </small>
+        } 
+    </div>
+
+</div>
+
+
+<div class="my-3 p-3 bg-body rounded shadow-sm">
+    <h6 class="border-bottom pb-2 mb-0 text-success">Missed Labs</h6>
+    <div class="overflow-auto" style="min-height:200px;max-height:200px;" >
+        @if(Model.MissedLabs.Count > 0)
+        {
+            foreach (var schedule in Model.Schedules.Where(p => p.StatusId == (int)SM.Enumerations.ScheduleStatus.Missed))
+            {
+                <div class="d-flex text-muted pt-3">
+                    <svg class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#df4759"/><text x="50%" y="50%" fill="	#df4759" dy=".3em">32x32</text></svg>
+
+                  <div class="pb-3 mb-0 small lh-sm border-bottom w-100">
+                    <div class="d-flex justify-content-between">
+                      <strong class="text-gray-dark">@schedule.Lab.Name</strong>
+                      <a href="@(sheduleViewUrl+schedule.Id.ToSlug())" class="px-3">View</a>
+                    </div>
+                    <span class="d-block">Time: @schedule.StartTime.ToString(dateFormat+timeFormat) - @schedule.EndTime.ToString(timeFormat)</span>
+                  </div>
+                </div>
+            }
+        }
+        else
+        {
+            <small class="d-block mt-3">
+              <span>No Labs have been completed</span>
+            </small>
+        }
+    </div>
+    
+</div>

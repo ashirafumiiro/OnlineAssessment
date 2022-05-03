@@ -1,0 +1,11 @@
+﻿@model WebPortal.Models.OperationResult
+@{
+}
+
+@Html.ValidationSummary()
+@if(Model.IsSuccessful)
+{
+    @Html.Raw(Model.Message)
+    <input type="hidden" value="@(WebPortal.Helpers.Constants.SuccessToken)"/>
+}
+

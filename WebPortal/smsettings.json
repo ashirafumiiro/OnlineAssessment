@@ -1,0 +1,13 @@
+{
+  "SMSettings": {
+    "IdHashing": {
+      "MinimumLength": 12,
+      "Salt": "ExampleSalt"
+    },
+    "Formatting": {
+      "TimeFormat": "hh:mm tt",
+      "DateFormat": "dddd, MMMM dd, yyyy ",
+      "DateTimeFormat": "MM-dd-yyyy hh:mm tt"
+    }
+  }
+}

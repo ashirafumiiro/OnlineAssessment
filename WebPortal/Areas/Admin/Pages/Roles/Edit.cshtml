@@ -1,0 +1,40 @@
+﻿@page
+@model WebPortal.Areas.Admin.Pages.Roles.EditModel
+
+@{
+    ViewData["Title"] = "Edit Role";
+}
+
+<h1>Edit Role</h1>
+
+<hr />
+
+<div class="row">
+    <form  class="row g-3" method="post">
+        <input type="hidden" asp-for="Role.Id" />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="row">
+            <div class="col-md-6">
+                <label asp-for="Role.Name" class="control-label"></label>
+                <input asp-for="Role.Name" class="form-control" />
+                <span asp-validation-for="Role.Name" class="text-danger"></span>
+            </div>
+        </div>
+        
+
+        <div class="row py-2">
+            <div class="col-md-2">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </div>  
+        
+    </form>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

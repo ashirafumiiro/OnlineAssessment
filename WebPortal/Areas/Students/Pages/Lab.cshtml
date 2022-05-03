@@ -1,0 +1,42 @@
+﻿@page
+@model WebPortal.Areas.Students.Pages.LabModel
+@{
+    ViewBag.LabsActive = "active";
+}
+
+<script>
+    function scheduleLab(){
+       
+        var labId = $("#labId").val();
+        var url = '/Students/Schedules/Create?id=' + labId;
+        window.location = url; 
+    }
+</script>
+
+<input type="hidden" id="labId" value="@Model.Lab.Id" />
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h3 class="h2">@Model.Lab.Name</h3>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a asp-area="Students" asp-page="/Labs" class="btn btn-sm btn-outline-secondary">Close</a>
+        </div>
+        <button type="button" class="btn btn-sm btn-primary" onclick="scheduleLab();">
+            <span data-feather="calendar"></span>
+                Create Schedule
+        </button>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        
+        <div class="my-3 p-3 bg-body rounded shadow-sm">
+            <h6 class="border-bottom pb-2 mb-0 text-success">Description</h6>
+            <div>
+                @Html.Raw(Model.Lab.Description)
+            </div>
+        </div>
+
+    </div>
+
+</div>

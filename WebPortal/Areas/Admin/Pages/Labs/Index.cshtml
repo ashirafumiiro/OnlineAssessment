@@ -1,0 +1,158 @@
+﻿@page
+@model IndexModel
+
+@{
+    ViewData["Title"] = "Labs";
+    var pageSize = 10;
+
+    string editUrl = Url.Page(
+        "./Edit", 
+        pageHandler: null
+    );
+
+}
+
+<script type="text/javascript">
+
+function navigateToLab(obj) {
+
+    var link = $(obj);
+    var id = link.attr("data-id");
+    var url = '@(editUrl)?viewId=' + id;
+
+    window.ShowMessageWhileNavigating("Loading Lab", "Please wait ...", url)
+
+    return;
+}
+
+</script>
+
+<script type="text/x-jsrender" id="viewLabTemplate">
+
+ <div class="row align-content-center">
+     <div class="col"><a data-id="${Slug}"  onclick="navigateToLab(this);" href="javascript:void(0);"> <span class="e-icons e-edit"></span></a></div>
+     <div class="col"><a data-lab-id="${Id}"  onclick="ShowDeleteLabDialog(this);" href="javascript:void(0);"> <span class="e-icons e-delete"></span></a></div>
+</div>
+
+</script>
+@await Html.PartialAsync("GridTemplates");
+
+
+<h1>Labs currently Registered</h1>
+
+<ejs-grid id="labsGrid" allowPaging="true" allowSorting="true" allowFiltering="true" queryCellInfo="gridSystemStatusQueryCellInfo">
+    <e-data-manager url="@Url.Action("GetLabs", "Data")" adaptor="UrlAdaptor"></e-data-manager>
+    <e-grid-pagesettings pageSize="@pageSize"></e-grid-pagesettings>
+    <e-grid-columns>
+        <e-grid-column field="Id" headerText="#" width="50"></e-grid-column>
+        <e-grid-column field="Name" headerText="Name"  width="90"></e-grid-column> 
+        <e-grid-column field="StartDate" headerText="Start Date" width="70" format="yMd"></e-grid-column>      
+        <e-grid-column field="StopDate" headerText="Ends" width="90" format="yMd"></e-grid-column>
+        <e-grid-column field="SystemStatusId" headerText="Status" template="#systemStatusTemplate" width="80" allowFiltering="false"></e-grid-column>
+        <e-grid-column field="Options" headerTextAlign="Left" headerText="Options" width="50" template="#viewLabTemplate" allowFiltering="false"></e-grid-column>
+    </e-grid-columns>
+</ejs-grid>
+
+<div id="spinnerTest">
+
+</div>
+
+<p>
+    <a asp-page="Create">Create New </a>
+    <!--format="yMd"-->
+</p>
+
+
+<div class="modal fade" id="deleteLabModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Delete Lab</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="DeleteLabId" />
+        <div id="deleteLabModal_Boday">
+
+        </div>
+      </div>
+      <div class="modal-footer">
+          <button type="button" id="deleteLabModal_Save" class="btn btn-primary" onclick="ProcessDeleteLab();">Save changes</button>
+        <button type="button" id="deleteLabModal_Cancel" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    document.getElementById('deleteLabModal').addEventListener('hidden.bs.modal', function (event) {
+            var grid = document.getElementById('labsGrid').ej2_instances[0];
+            grid.refresh();
+    });
+
+    function ShowDeleteLabDialog(el){
+        var elm = $(el);
+        let id = elm.attr("data-lab-id");
+        $("#DeleteLabId").val(id);
+
+        $('#deleteLabModal_Save').show();
+        $('#deleteLabModal_Cancel').html('Cancel');
+        $('#deleteLabModal_Cancel').show()
+
+        var modelBodyId = 'deleteLabModal_Boday';
+        var modalId = 'deleteLabModal';
+
+        document.getElementById(modelBodyId).innerHTML = '<p>Are you sure you want to delete the Lab</p>';
+        $('#' + modalId).modal('show');
+    }
+
+
+    function ProcessDeleteLab()
+    {
+        // get target element
+        var modelBodyId = "deleteLabModal_Boday";
+
+        // build url
+        var url = '@Url.Action("DeleteLab", "Labs")';
+
+        // create payload
+        var payload = {
+            "Id": $("#DeleteLabId").val()
+        };
+
+        // set UI to wait
+        document.getElementById(modelBodyId).innerHTML = getLoadingIndicator('Processing ...');
+
+        //hide buttons
+        $('#deleteLabModal_Save').hide();
+        $('#deleteLabModal_Cancel').hide();
+
+        // get content
+        $.ajax({
+            contentType: "application/json",
+            type: 'POST',
+            url: url,
+            data: JSON.stringify(payload),
+            success: function (result) {
+                document.getElementById(modelBodyId).innerHTML = result;
+                console.log('result', result);
+                if (result.indexOf("@(WebPortal.Helpers.Constants.SuccessToken)") > -1) {
+                    $('#deleteLabModal_Cancel').html('OK');
+                    $('#deleteLabModal_Cancel').show();
+                }
+                else{
+                    $('#deleteLabModal_Cancel').html('Close');
+                    $('#deleteLabModal_Cancel').show();
+                }
+            },
+            error: function (xhr, status, error) {
+                alert(xhr.responseText);
+                alert(status);
+                alert(error);
+                $('#deleteLabModal_Cancel').html('Close');
+                $('#deleteLabModal_Cancel').show();
+            }
+        });
+    }
+
+</script>

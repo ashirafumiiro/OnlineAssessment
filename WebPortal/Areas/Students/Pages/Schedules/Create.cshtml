@@ -1,0 +1,291 @@
+﻿@page
+@using Syncfusion.EJ2.Schedule
+@model WebPortal.Areas.Students.Pages.Schedules.CreateModel
+
+@{
+    ViewBag.SchedulesActive = "active";
+    var labId = Model.ScheduleModel.LabId;
+    var timeInterval = Model.ScheduleModel.TimeInterval;
+
+    List<ScheduleView> viewOption = new List<ScheduleView>()
+    {
+        new ScheduleView { Option = Syncfusion.EJ2.Schedule.View.Week }
+    };
+
+    var url = Url.Action("GetBlockData", "Schedules");
+
+}
+<style>
+    div.e-block-appointment {
+        background-color: #df4759 !important;
+    }
+
+    .custom-event-editor .e-textlabel {
+        padding-right: 15px;
+        text-align: right;
+    }
+
+    .custom-event-editor td {
+        padding: 7px;
+        padding-right: 16px;
+    }
+</style>
+<link rel="stylesheet" href="~/css/scheduler.css" />
+
+<script id="header-template" type="text/x-template">
+    <div class="quick-info-header" style='align-items: center; color: #919191;'>
+        <div class="quick-info-header-content">
+            <div class="quick-info-title">Schedule For Lab</div>
+            <div class="duration-text">${getHeaderDetails(data)}</div>
+        </div>
+    </div>
+</script>
+
+<script id="content-template" type="text/x-template">
+    <div class="quick-info-content">
+        ${if (elementType == "cell")}
+            <div class="event-content">
+                <div class="meeting-type-wrap">
+                    <label>Lab Name</label>:
+                    <span>@(Model.ScheduleModel.LabName)</span>
+                </div>
+                <div class="meeting-subject-wrap">
+                    <label>Expires:</label>:
+                    <span>@Model.ScheduleModel.MaximumDate</span>
+                </div>
+                <div class="notes-wrap">
+                    <label>Notes</label>:
+                    <span>@*${Description}*@ Description</span>
+                </div>
+            </div>
+        ${/if}
+    </div>
+</script>
+
+<script id="footer-template" type="text/x-template">
+    <div class="quick-info-footer">
+        <div class="cell-footer">
+            <button id="add">Comfirm</button>
+            <button id="cancel">Cancel</button>
+        </div>
+    </div>
+</script>
+
+
+<input type="hidden" id="labId" value="@labId" />
+<p class="fs-2 fw-bold">Create schedule for: <span class="fw-normal">@Model.ScheduleModel.LabName</span></p> 
+
+
+<div class="container" id="container">
+   @* timezone="Africa/Nairobi"*@
+   @if (Model.ScheduleModel.MaximumDate > DateTime.Now)
+   {
+       <p>Select an available slot and click add on the popup that will appear.</p>
+       <div class="row mb-3">
+            <ejs-schedule id="schedule" height="550" views="@viewOption" selectedDate="DateTime.Now" actionFailure="onActionFailure" minDate="DateTime.Now.AddDays(-1)" maxDate="@Model.ScheduleModel.MaximumDate" 
+                actionComplete="onActionComplete" popupOpen="OnPopupOpen" renderCell="onRenderer" actionBegin="onActionBegin" firstDayOfWeek="0">
+                 <e-schedule-quickinfotemplates header="#header-template" content="#content-template" footer="#footer-template">
+                </e-schedule-quickinfotemplates>
+            </ejs-schedule>
+        </div>
+    }
+    else
+    {
+        <p>This Lab cannot be scheduled, It has already expired.</p>
+    }
+
+
+    
+</div>
+
+<script>
+var intl;
+$(function(){
+    intl = new ej.base.Internationalization();
+});
+function getHeaderDetails(data) {
+    return intl.formatDate(data.StartTime, { type: 'date', skeleton: 'full' }) + ' (' +
+        intl.formatDate(data.StartTime, { skeleton: 'hm' }) + ' - ' + intl.formatDate(data.EndTime, { skeleton: 'hm' }) + ')';
+};
+
+function onActionFailure(args) {
+    var scheduleObj = document.getElementById('schedule').ej2_instances[0];
+    var span = document.createElement('span');
+    scheduleObj.element.parentNode.insertBefore(span, scheduleObj.element);
+    span.style.color = '#FF0000';
+    span.innerHTML = 'Server exception: 404 Not found';
+}
+
+ function onRenderer(args) {
+    if(args.elementType === "dateHeader" || args.elementType === "monthCells") {
+        ej.base.removeClass(args.element.childNodes, "e-navigate");
+    }
+}
+
+function onActionComplete(args){ 
+    if ( args.requestType === "viewNavigate" || args.requestType === "dateNavigate"  || args.requestType === "toolBarItemRendered") { 
+        var scheduleObj = document.getElementById('schedule').ej2_instances[0];
+
+        var currentViewDates = scheduleObj.getCurrentViewDates(); 
+        var startDate = currentViewDates[0]; 
+        var endDate = currentViewDates[currentViewDates.length - 1]; 
+
+        var dataManager =new ejs.data.DataManager({  
+            "url": '@url',  
+            "adaptor": new ejs.data.UrlAdaptor(),  
+            "crossDomain": true  
+        }); 
+
+        var query = new ejs.data.Query().from('Events').addParams("CurrentView", scheduleObj.currentView).addParams("StartDate", startDate).addParams("LabId", $("#labId").val());  
+        var promise = dataManager.executeQuery(query);  
+        promise.then(function (result) {  
+            console.log('result:', result.result);
+            scheduleObj.eventSettings.dataSource = result.result;
+            scheduleObj.dataBind();                
+        }); 
+    } 
+} 
+
+
+function onActionBegin(args) {
+    if (args.requestType === 'eventCreate' || args.requestType === 'eventChange') {
+        var data;
+        if (args.requestType === 'eventCreate') {
+            data = args.data[0];
+        } else if (args.requestType === 'eventChange') {
+            data = args.data;
+        }
+        var scheduleObj = document.getElementById('schedule').ej2_instances[0];
+        if (!scheduleObj.isSlotAvailable(data.StartTime, data.EndTime)) {
+            args.cancel = true;
+        }
+
+        console.log('creating event:', data);
+    }
+}
+
+function OnPopupOpen(args) {
+    if (args.type === 'Editor') {args.cancel = true;}
+    var scheduleObj = document.getElementById('schedule').ej2_instances[0];
+    if (args.type === 'QuickInfo') {
+        var addBtn = args.element.querySelector('#add');
+        if (addBtn) {
+            new ej.buttons.Button({ content: 'Add', cssClass: 'e-flat', isPrimary: true }, addBtn);
+            addBtn.onclick = function (e) { buttonClickActions(e); };
+        }
+        var deleteBtn = args.element.querySelector('#cancel');
+        if (deleteBtn) {
+            new ej.buttons.Button({ content: 'Cancel', cssClass: 'e-flat' }, deleteBtn);
+            deleteBtn.onclick = function (e) { buttonClickActions(e); };
+        }
+    }
+}
+
+var buttonClickActions = function (e) {
+        var scheduleObj = document.getElementById('schedule').ej2_instances[0];
+        var quickPopup = ej.base.closest(e.target, '.e-quick-popup-wrapper');
+        var getSlotData = function () {
+            var cellDetails = scheduleObj.getCellDetails(scheduleObj.getSelectedElements());
+            
+            var addObj = {};
+            addObj.StartTime = new Date(+cellDetails.startTime);
+            addObj.EndTime = new Date(+cellDetails.endTime);
+            return addObj;
+        };
+
+        if (e.target.id === 'add') {
+            var addObj = getSlotData();
+            processSchedule(addObj);
+        }
+        else if (e.target.id === 'cancel') {
+            scheduleObj.closeQuickInfoPopup();
+        }
+    };
+
+
+     function processSchedule(data){
+        var scheduleObj = document.getElementById('schedule').ej2_instances[0];
+        var url = '@Url.Action("ScheduleLab", "Schedules")';
+        $("#scheduleLabModal_Continue").hide();
+        $("#scheduleLabModal_Retry").hide();
+        var payload = {
+            "LabId" : $("#labId").val(),
+            "StartTime": data.StartTime,
+            "EndTime" : data.EndTime
+        }
+
+        console.log("payload:", payload);
+        var spinTarget = document.getElementById('container');
+            ej.popups.createSpinner({
+                target: spinTarget
+            });
+        ej.popups.showSpinner(spinTarget);
+
+        var modalId = 'scheduleLabModal';
+        var modelBodyId = "scheduleLabModal_Body";
+        scheduleObj.closeQuickInfoPopup();
+        $('#' + modalId).modal('show');
+
+        
+
+        document.getElementById(modelBodyId).innerHTML = getLoadingIndicator('Processing ...');
+
+        $.ajax({
+            contentType: "application/json",
+            type: 'POST',
+            url: url,
+            data: JSON.stringify(payload),
+            success: function (result) {
+                document.getElementById(modelBodyId).innerHTML = result;  
+                
+                if(result.indexOf("@(WebPortal.Helpers.Constants.SuccessToken)") > -1)
+                {
+                    $("#scheduleLabModal_Continue").show();
+                }
+                else
+                {
+                    $("#scheduleLabModal_Retry").show();
+                    ej.popups.hideSpinner(spinTarget);
+                }
+ 
+            },
+            error: function (xhr, status, error) {
+                document.getElementById(modelBodyId).innerHTML = "Some Errors Occured: " + xhr.responseText ; 
+                //alert(xhr.responseText);
+                //alert(status);
+                //alert(error);
+
+                $("#scheduleLabModal_Retry").show();
+                ej.popups.hideSpinner(spinTarget);
+            }
+        });
+
+    }
+
+    function ProcessContinue(){
+        var url = "/Students/Schedules";
+        if(url != null)
+            document.location.href = url;
+    }
+
+</script>
+
+<div class="modal fade" id="scheduleLabModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Schedule Lab Info</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="scheduleLabModal_Body">
+
+        </div>
+      </div>
+      <div class="modal-footer">
+          <button type="button" id="scheduleLabModal_Continue" class="btn btn-primary" onclick="ProcessContinue();">Continue</button>
+        <button type="button" id="scheduleLabModal_Retry" class="btn btn-secondary" data-bs-dismiss="modal">Try Again</button>
+      </div>
+    </div>
+  </div>
+</div>
